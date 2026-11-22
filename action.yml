@@ -1,0 +1,74 @@
+name: "geoseo checker audit"
+description: "Fail a workflow when your site's SEO, speed or AI-search readiness score drops. Reads the latest audit from geoseochecker.com; no key needed."
+author: "geoseo checker"
+branding:
+  icon: "check-circle"
+  color: "orange"
+
+inputs:
+  domain:
+    description: "The site to check, e.g. example.com"
+    required: true
+  min-score:
+    description: "Fail when the overall score is below this (0-100). 0 never fails on the score."
+    required: false
+    default: "0"
+  max-serious:
+    description: "Fail when the site has more than this many serious issues. Empty = no limit."
+    required: false
+    default: ""
+  max-age-days:
+    description: "Fail when the latest audit is older than this many days. 0 = no limit."
+    required: false
+    default: "0"
+  require-audit:
+    description: "Fail when the site has not been audited yet (default: only a notice)."
+    required: false
+    default: "false"
+  api-url:
+    description: "Address of geoseo checker. Leave the default."
+    required: false
+    default: "https://geoseochecker.com"
+
+outputs:
+  found:
+    description: "true when a finished audit exists"
+    value: ${{ steps.check.outputs.found }}
+  score:
+    description: "Overall score (0-100)"
+    value: ${{ steps.check.outputs.score }}
+  seo-score:
+    description: "Search basics score"
+    value: ${{ steps.check.outputs.seo-score }}
+  speed-score:
+    description: "Speed score"
+    value: ${{ steps.check.outputs.speed-score }}
+  ai-readiness:
+    description: "AI readiness score: how well ChatGPT, Perplexity or Gemini can read and quote the site"
+    value: ${{ steps.check.outputs.ai-readiness }}
+  serious-issues:
+    description: "Number of serious issues"
+    value: ${{ steps.check.outputs.serious-issues }}
+  warnings:
+    description: "Number of warnings"
+    value: ${{ steps.check.outputs.warnings }}
+  audited-at:
+    description: "When the audit was made (ISO time)"
+    value: ${{ steps.check.outputs.audited-at }}
+  report-url:
+    description: "The full report with the fixes"
+    value: ${{ steps.check.outputs.report-url }}
+
+runs:
+  using: "composite"
+  steps:
+    - id: check
+      shell: bash
+      env:
+        INPUT_DOMAIN: ${{ inputs.domain }}
+        INPUT_MIN_SCORE: ${{ inputs.min-score }}
+        INPUT_MAX_SERIOUS: ${{ inputs.max-serious }}
+        INPUT_MAX_AGE_DAYS: ${{ inputs.max-age-days }}
+        INPUT_REQUIRE_AUDIT: ${{ inputs.require-audit }}
+        INPUT_API_URL: ${{ inputs.api-url }}
+      run: bash "${{ github.action_path }}/check.sh"
