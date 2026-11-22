@@ -1,5 +1,5 @@
 name: "geoseo checker audit"
-description: "Fail a workflow when your site's SEO, speed or AI-search readiness score drops. Reads the latest audit from geoseochecker.com; no key needed."
+description: "Fail a workflow when your site's SEO, speed or AI-readiness score drops. Reads the latest geoseochecker.com audit."
 author: "geoseo checker"
 branding:
   icon: "check-circle"
