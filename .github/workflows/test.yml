@@ -1,0 +1,34 @@
+name: test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  action:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Passes for an audited site
+        id: ok
+        uses: ./
+        with:
+          domain: padi.com
+          min-score: "1"
+      - name: Reads the score
+        run: test -n "${{ steps.ok.outputs.score }}"
+      - name: Fails below the bar
+        id: low
+        continue-on-error: true
+        uses: ./
+        with:
+          domain: padi.com
+          min-score: "101"
+      - name: The bar was enforced
+        run: test "${{ steps.low.outcome }}" = "failure"
+      - name: A site without an audit is only a notice
+        uses: ./
+        with:
+          domain: this-site-does-not-exist-xyz.example
